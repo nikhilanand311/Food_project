@@ -1,72 +1,36 @@
-import React, { Suspense, lazy, useEffect } from "react";
-import ReactDOM from "react-dom/client";
-import {  Footer } from "../src/components/Footer/Footer";
-import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import useOnline from "./hooks/useOnline";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Cart from "./pages/Cart";
-import NotFound from "./pages/NotFound";
-import RestaurantMenu from "./pages/RestaurantMenu";
-import Search from "./pages/Search";
-
-import { AuthorProvider, useAuthor } from "./components/context/AuthorContext";
-import { Provider } from "react-redux";
-import store from "./store";
-
-const Instamart = lazy(() => import("./pages/Instamart"));
+import React, { useState } from "react";
+import Home from "./pages/Home/Home";
+import Footer from "./components/Footer/Footer";
+import Navbar from "./components/Navbar/Navbar";
+import { Route, Routes } from "react-router-dom";
+import Cart from "./pages/Cart/Cart";
+import LoginPopup from "./components/LoginPopup/LoginPopup";
+import PlaceOrder from "./pages/PlaceOrder/PlaceOrder";
+import MyOrders from "./pages/MyOrders/MyOrders";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Verify from "./pages/Verify/Verify";
 
 const App = () => {
-  const isOnline = useOnline();
-  const { setAuthor } = useAuthor();
-
-  useEffect(() => {
-    setAuthor({
-      name: "Kiran Mahajan",
-      github_url: "https://github.com/thekiranmahajan",
-      linkedin_url: "https://www.linkedin.com/in/thekiranmahajan/",
-    });
-  }, [setAuthor]);
+  const [showLogin, setShowLogin] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center  overflow-x-hidden bg-gray-200">
-      <Header />
-      <Outlet />
-      {!isOnline && <Offline />}
+    <>
+      <ToastContainer />
+      {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
+      <div className="app">
+        <Navbar setShowLogin={setShowLogin} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/order" element={<PlaceOrder />} />
+          <Route path="/myorders" element={<MyOrders />} />
+          <Route path="/verify" element={<Verify />} />
+        </Routes>
+      </div>
       <Footer />
-    </div>
+    </>
   );
 };
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      <Provider store={store}>
-        <AuthorProvider>
-          <ScrollToTop />
-          <App />
-        </AuthorProvider>
-      </Provider>
-    ),
-    errorElement: <NotFound />,
-    children: [
-      { path: "", element: <Home /> },
-      { path: "search", element: <Search /> },
-      { path: "about", element: <About /> },
-      { path: "cart", element: <Cart /> },
-      { path: "restaurant-menu/:resId", element: <RestaurantMenu /> },
-      {
-        path: "instamart",
-        element: (
-          <Suspense fallback={<div>Loading...</div>}>
-            <Instamart />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-]);
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<RouterProvider router={router} />);
+export default App;
