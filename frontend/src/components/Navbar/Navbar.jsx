@@ -1,87 +1,82 @@
-// import React, { useState, useEffect, useRef } from "react";
-// import { NavLink } from "react-router-dom";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import {
-//   faCartPlus,
-//   faTruckFast,
-//   faUtensils,
-// } from "@fortawesome/free-solid-svg-icons";
-// import useOnline from "../../hooks/useOnline";
-// import githubLogo from "../../components/Navbar/logo.png";
-// import { useAuthor } from "../context/AuthorContext";
-// import { useSelector } from "react-redux";
+import React, { useContext, useEffect, useState } from "react";
+import "./Navbar.css";
+import { assets } from "../../assets/assets";
+import { Link, useNavigate } from "react-router-dom";
+import { StoreContext } from "../../Context/StoreContext";
 
-// const NavLinks = ({ setIsOpen = () => {}, className }) => {
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
-//   const navSideMenuRef = useRef(null);
-//   const isOnline = useOnline();
-//   const { author } = useAuthor();
-//   const cartItems = useSelector((store) => store.cart.items);
+const Navbar = ({ setShowLogin }) => {
+  const [menu, setMenu] = useState("home");
+  const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
+  const navigate = useNavigate();
 
-//   const handleMenuOutsideClick = (e) => {
-//     if (navSideMenuRef.current && !navSideMenuRef.current.contains(e.target)) {
-//       setIsOpen(false);
-//     }
-//   };
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    navigate("/");
+  };
 
-//   useEffect(() => {
-//     document.addEventListener("mousedown", handleMenuOutsideClick);
-//     return () => {
-//       document.removeEventListener("mousedown", handleMenuOutsideClick);
-//     };
-//   }, []);
+  return (
+    <div className="navbar">
+      <Link to="/">
+        <img className="logo" src={assets.logo} alt="" />
+      </Link>
+      <ul className="navbar-menu">
+        <Link
+          to="/"
+          onClick={() => setMenu("home")}
+          className={`${menu === "home" ? "active" : ""}`}
+        >
+          home
+        </Link>
+        <a
+          href="#explore-menu"
+          onClick={() => setMenu("menu")}
+          className={`${menu === "menu" ? "active" : ""}`}
+        >
+          menu
+        </a>
+        <a
+          href="#app-download"
+          onClick={() => setMenu("mob-app")}
+          className={`${menu === "mob-app" ? "active" : ""}`}
+        >
+          mobile app
+        </a>
+        <a
+          href="#footer"
+          onClick={() => setMenu("contact")}
+          className={`${menu === "contact" ? "active" : ""}`}
+        >
+          contact us
+        </a>
+      </ul>
+      <div className="navbar-right">
+        <img src={assets.search_icon} alt="" />
+        <Link to="/cart" className="navbar-search-icon">
+          <img src={assets.basket_icon} alt="" />
+          <div className={getTotalCartAmount() > 0 ? "dot" : ""}></div>
+        </Link>
+        {!token ? (
+          <button onClick={() => setShowLogin(true)}>sign in</button>
+        ) : (
+          <div className="navbar-profile">
+            <img src={assets.profile_icon} alt="" />
+            <ul className="navbar-profile-dropdown">
+              <li onClick={() => navigate("/myorders")}>
+                {" "}
+                <img src={assets.bag_icon} alt="" /> <p>Orders</p>
+              </li>
+              <hr />
+              <li onClick={logout}>
+                {" "}
+                <img src={assets.logout_icon} alt="" /> <p>Logout</p>
+              </li>
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-//   return (
-//     <div ref={navSideMenuRef} className={className}>
-//       <NavLink
-//         to="/"
-//         onClick={() => setIsOpen(false)}
-//         activeClassName="active-navlink"
-//       >
-//         Home
-//       </NavLink>
-//       <NavLink
-//         to="/search"
-//         onClick={() => setIsOpen(false)}
-//         activeClassName="active-navlink"
-//       >
-//         Search
-//       </NavLink>
-//       <NavLink
-//         to="/about"
-//         onClick={() => setIsOpen(false)}
-//         activeClassName="active-navlink"
-//       >
-//         About
-//       </NavLink>
-//       <NavLink
-//         to="/cart"
-//         onClick={() => setIsOpen(false)}
-//         activeClassName="active-navlink"
-//       >
-//         <FontAwesomeIcon icon={faCartPlus} /> Cart ({cartItems.length})
-//       </NavLink>
-//       <NavLink
-//         to="/instamart"
-//         onClick={() => setIsOpen(false)}
-//         activeClassName="active-navlink"
-//       >
-//         <FontAwesomeIcon icon={faTruckFast} /> Instamart
-//       </NavLink>
-//       <button onClick={() => setIsLoggedIn(!isLoggedIn)}>
-//         {isLoggedIn ? "Logout" : "Login"}
-//       </button>
-//       <a href={author?.github_url} target="_blank" rel="noopener noreferrer">
-//         <img
-//           className={`h-9 w-9 rounded-full ring-4 ${
-//             isOnline ? "ring-yellow-400" : "ring-red-400"
-//           }`}
-//           src={githubLogo}
-//           alt="GitHub Logo"
-//         />
-//       </a>
-//     </div>
-//   );
-// };
-
-// export default NavLinks;
+export default Navbar;

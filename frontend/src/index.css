@@ -10,6 +10,7 @@
 
 body {
   min-height: 100vh;
+  background-color: #df3636; 
 }
 
 a {
@@ -32,7 +33,7 @@ a {
   }
 }
 
-@media (max-width:1050px) {
+@media (max-width: 1050px) {
   .app {
     width: 90%;
   }
